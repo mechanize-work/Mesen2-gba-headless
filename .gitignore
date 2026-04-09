@@ -189,4 +189,6 @@ packages/*
 !Libretro/hakchi/bin
 
 TestHelper/*
-UI/Dependencies.zip
+UI/Dependencies.ziplibmesen.a
+test_main.cpp
+*.o
