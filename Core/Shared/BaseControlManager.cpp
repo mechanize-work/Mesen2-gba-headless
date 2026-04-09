@@ -3,7 +3,6 @@
 #include "Shared/Emulator.h"
 #include "Shared/EmuSettings.h"
 #include "Shared/KeyManager.h"
-#include "Shared/ControllerHub.h"
 #include "Shared/Interfaces/IKeyManager.h"
 #include "Shared/Interfaces/IInputProvider.h"
 #include "Shared/Interfaces/IInputRecorder.h"
@@ -77,12 +76,7 @@ shared_ptr<BaseControlDevice> BaseControlManager::GetControlDevice(uint8_t port,
 
 	for(size_t i = 0; i < _controlDevices.size(); i++) {
 		if(_controlDevices[i] && _controlDevices[i]->GetPort() == port) {
-			shared_ptr<IControllerHub> hub = std::dynamic_pointer_cast<IControllerHub>(_controlDevices[i]);
-			if(hub) {
-				return hub->GetController(subPort);
-			} else {
-				return subPort == 0 ? _controlDevices[i] : nullptr;
-			}
+			return subPort == 0 ? _controlDevices[i] : nullptr;
 		}
 	}
 	return nullptr;
@@ -95,22 +89,10 @@ shared_ptr<BaseControlDevice> BaseControlManager::GetControlDeviceByIndex(uint8_
 	int counter = 0;
 	for(size_t i = 0; i < _controlDevices.size(); i++) {
 		if(_controlDevices[i] && _controlDevices[i]->GetPort() <= 2) {
-			shared_ptr<IControllerHub> hub = std::dynamic_pointer_cast<IControllerHub>(_controlDevices[i]);
-			if(hub) {
-				int portCount = hub->GetHubPortCount();
-				for(int j = 0; j < portCount; j++) {
-					shared_ptr<BaseControlDevice> device = hub->GetController(j);
-					if(counter == index) {
-						return device;
-					}
-					counter++;
-				}
-			} else {
-				if(counter == index) {
-					return _controlDevices[i];
-				}
-				counter++;
+			if(counter == index) {
+				return _controlDevices[i];
 			}
+			counter++;
 		}
 	}
 	return nullptr;
@@ -118,16 +100,6 @@ shared_ptr<BaseControlDevice> BaseControlManager::GetControlDeviceByIndex(uint8_
 
 void BaseControlManager::RefreshHubState()
 {
-	auto lock = _deviceLock.AcquireSafe();
-
-	for(size_t i = 0; i < _controlDevices.size(); i++) {
-		if(_controlDevices[i] && _controlDevices[i]->GetPort() <= 2) {
-			shared_ptr<IControllerHub> hub = std::dynamic_pointer_cast<IControllerHub>(_controlDevices[i]);
-			if(hub) {
-				hub->RefreshHubState();
-			}
-		}
-	}
 }
 
 vector<shared_ptr<BaseControlDevice>> BaseControlManager::GetControlDevices()

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <cstring>
 #include "BpsPatcher.h"
-#include "CRC32.h"
+#include "../CRC32.h"
 
 int64_t BpsPatcher::ReadBase128Number(std::istream &file)
 {

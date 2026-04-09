@@ -14,15 +14,8 @@ class SystemHud;
 class DebugHud;
 class InputHud;
 
-class IVideoRecorder;
-enum class VideoCodec;
-
 struct RecordAviOptions
 {
-	VideoCodec Codec;
-	uint32_t CompressionLevel;
-	bool RecordSystemHud;
-	bool RecordInputHud;
 };
 
 class VideoRenderer
@@ -44,9 +37,6 @@ private:
 	unique_ptr<InputHud> _inputHud;
 	SimpleLock _hudLock;
 
-	RenderSurfaceInfo _aviRecorderSurface = {};
-	RecordAviOptions _recorderOptions = {};
-
 	RenderSurfaceInfo _emuHudSurface = {};
 	RenderSurfaceInfo _scriptHudSurface = {};
 	bool _needScriptHudClear = false;
@@ -57,14 +47,10 @@ private:
 	RenderedFrame _lastFrame;
 	SimpleLock _frameLock;
 
-	safe_ptr<IVideoRecorder> _recorder;
-
 	void RenderThread();
 	bool DrawScriptHud(RenderedFrame& frame);
-	
-	FrameInfo GetEmuHudSize(FrameInfo baseFrameSize);
 
-	void ProcessAviRecording(RenderedFrame& frame);
+	FrameInfo GetEmuHudSize(FrameInfo baseFrameSize);
 
 public:
 	VideoRenderer(Emulator* emu);

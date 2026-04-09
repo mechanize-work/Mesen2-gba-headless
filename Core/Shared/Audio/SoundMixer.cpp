@@ -65,11 +65,41 @@ void SoundMixer::StopAudio(bool clearBuffer)
 	}
 }
 
+#ifdef MESEN_HEADLESS
+// GbaApu pushes i16 stereo at sourceRate (32768 Hz at default SOUNDBIAS)
+// straight into here. The normal path runs it through the resampler,
+// EQ, reverb, then IAudioDevice::PlayBuffer -- none of which exist in
+// the headless build. We just stash the raw input for the shim to read
+// after RunFrame() returns.
+//
+// Single producer, single consumer, both on the same thread (GbaApu calls
+// this from inside RunFrame, shim reads after). No locking. 4x a frame's
+// worth (~548 pairs) so a missed drain doesn't clip.
+static constexpr uint32_t kHeadlessAudioCapacity = 2048;
+static int16_t  g_headlessAudio[kHeadlessAudioCapacity * 2];
+static uint32_t g_headlessAudioCount = 0;
+
+extern "C" int16_t* MesenHeadlessAudioBuffer() { return g_headlessAudio; }
+extern "C" uint32_t MesenHeadlessAudioDrain() {
+	uint32_t n = g_headlessAudioCount;
+	g_headlessAudioCount = 0;
+	return n;
+}
+#endif
+
 void SoundMixer::PlayAudioBuffer(int16_t* samples, uint32_t sampleCount, uint32_t sourceRate)
 {
 	if(sampleCount == 0) {
 		return;
 	}
+
+#ifdef MESEN_HEADLESS
+	uint32_t room = kHeadlessAudioCapacity - g_headlessAudioCount;
+	uint32_t take = sampleCount < room ? sampleCount : room;
+	memcpy(g_headlessAudio + g_headlessAudioCount * 2, samples, take * 2 * sizeof(int16_t));
+	g_headlessAudioCount += take;
+	return;
+#endif
 
 	EmuSettings* settings = _emu->GetSettings();
 	AudioPlayerHud* audioPlayer = _emu->GetAudioPlayerHud();

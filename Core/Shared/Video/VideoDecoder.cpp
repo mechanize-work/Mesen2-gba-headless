@@ -8,14 +8,15 @@
 #include "Shared/RewindManager.h"
 #include "Shared/EmuSettings.h"
 #include "Shared/SettingTypes.h"
-#include "Shared/Video/ScaleFilter.h"
 #include "Shared/Video/RotateFilter.h"
 #include "Shared/Video/ScanlineFilter.h"
 #include "Shared/Video/DebugHud.h"
 #include "Shared/InputHud.h"
 #include "Shared/RenderedFrame.h"
 #include "Shared/Video/SystemHud.h"
+#ifndef MESEN_HEADLESS
 #include "SNES/CartTypes.h"
+#endif
 
 VideoDecoder::VideoDecoder(Emulator* emu)
 {
@@ -76,7 +77,6 @@ void VideoDecoder::UpdateVideoFilter()
 		_consoleType = consoleType;
 
 		_videoFilter.reset(_emu->GetVideoFilter());
-		_scaleFilter = ScaleFilter::GetScaleFilter(_emu, _videoFilterType);
 		_forceFilterUpdate = false;
 	}
 
@@ -123,11 +123,6 @@ void VideoDecoder::DecodeFrame(bool forRewind)
 	}
 
 	_emu->GetDebugHud()->Draw(outputBuffer, frameSize, overscan, _frame.FrameNumber, _videoFilter->GetScaleFactor());
-
-	if(_scaleFilter && !isAudioPlayer) {
-		outputBuffer = _scaleFilter->ApplyFilter(outputBuffer, frameSize.Width, frameSize.Height);
-		frameSize = _scaleFilter->GetFrameInfo(frameSize);
-	}
 
 	if(!isAudioPlayer) {
 		uint8_t scale = std::max<uint8_t>(1, (uint8_t)((double)frameSize.Height / (_frame.Height - overscan.Top - overscan.Bottom)));
@@ -206,40 +201,15 @@ void VideoDecoder::UpdateFrame(RenderedFrame frame, bool sync, bool forRewind)
 
 void VideoDecoder::StartThread()
 {
-	auto lock = _stopStartLock.AcquireSafe();
-	if(!_decodeThread) {
-		_videoFilter.reset();
-		UpdateVideoFilter();
-		_videoFilter->SetBaseFrameInfo(_baseFrameSize);
-		_stopFlag = false;
-		_frameChanged = false;
-		_frameCount = 0;
-		_waitForFrame.Reset();
-		
-		_emu->GetVideoRenderer()->ClearFrame();
-
-		_decodeThread.reset(new thread(&VideoDecoder::DecodeThread, this));
-	}
 }
 
 void VideoDecoder::StopThread()
 {
-	auto lock = _stopStartLock.AcquireSafe();
-	_stopFlag = true;
-	if(_decodeThread) {
-		_waitForFrame.Signal();
-		_decodeThread->join();
-
-		_decodeThread.reset();
-
-		//Clear whole screen
-		_emu->GetVideoRenderer()->ClearFrame();
-	}
 }
 
 bool VideoDecoder::IsRunning()
 {
-	return _decodeThread != nullptr;
+	return false;
 }
 
 void VideoDecoder::TakeScreenshot()

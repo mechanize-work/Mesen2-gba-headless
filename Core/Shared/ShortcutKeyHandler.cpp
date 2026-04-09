@@ -12,7 +12,6 @@
 #include "Shared/BaseControlManager.h"
 #include "Shared/Interfaces/IBarcodeReader.h"
 #include "Shared/Interfaces/ITapeRecorder.h"
-#include "Netplay/GameClient.h"
 
 ShortcutKeyHandler::ShortcutKeyHandler(Emulator* emu)
 {
@@ -122,7 +121,7 @@ void ShortcutKeyHandler::ProcessRunSingleFrame()
 bool ShortcutKeyHandler::IsShortcutAllowed(EmulatorShortcut shortcut, uint32_t shortcutParam)
 {
 	bool isRunning = _emu->IsRunning();
-	bool isNetplayClient = _emu->GetGameClient()->Connected();
+	bool isNetplayClient = false;
 	bool isMoviePlaying = _emu->GetMovieManager()->Playing();
 	bool isMovieRecording = _emu->GetMovieManager()->Recording();
 	bool isMovieActive = isMoviePlaying || isMovieRecording;

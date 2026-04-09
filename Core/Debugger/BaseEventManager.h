@@ -3,7 +3,6 @@
 #include "Debugger/DebugTypes.h"
 #include "Shared/SettingTypes.h"
 #include "Utilities/SimpleLock.h"
-#include "SNES/DmaControllerTypes.h"
 
 enum class EventFlags
 {
@@ -24,7 +23,6 @@ struct DebugEventInfo
 	uint16_t Cycle;
 	int16_t BreakpointId = -1;
 	int8_t DmaChannel = -1;
-	DmaChannelConfig DmaChannelInfo;
 	uint32_t Flags;
 	int32_t RegisterId = -1;
 	MemoryOperationInfo TargetMemory;

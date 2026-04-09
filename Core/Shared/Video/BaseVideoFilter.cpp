@@ -4,7 +4,6 @@
 #include "Shared/MessageManager.h"
 #include "Shared/Video/BaseVideoFilter.h"
 #include "Shared/Video/RotateFilter.h"
-#include "Shared/Video/ScaleFilter.h"
 #include "Shared/Video/ScanlineFilter.h"
 #include "Utilities/PNGHelper.h"
 #include "Utilities/FolderUtilities.h"
@@ -190,13 +189,6 @@ void BaseVideoFilter::TakeScreenshot(VideoFilterType filterType, string filename
 	if(screenRotation != 0) {
 		pngBuffer = rotateFilter->ApplyFilter(pngBuffer, frameInfo.Width, frameInfo.Height);
 		frameInfo = rotateFilter->GetFrameInfo(frameInfo);
-	}
-
-	unique_ptr<ScaleFilter> scaleFilter = ScaleFilter::GetScaleFilter(_emu, filterType);
-	if(scaleFilter) {
-		pngBuffer = scaleFilter->ApplyFilter(pngBuffer, frameInfo.Width, frameInfo.Height);
-		frameInfo = scaleFilter->GetFrameInfo(frameInfo);
-		scale = scaleFilter->GetScale();
 	}
 
 	ScanlineFilter::ApplyFilter(pngBuffer, frameInfo.Width, frameInfo.Height, _emu->GetSettings()->GetVideoConfig().ScanlineIntensity, scale);

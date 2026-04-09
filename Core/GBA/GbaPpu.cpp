@@ -183,8 +183,7 @@ void GbaPpu::SendFrame()
 	_emu->GetNotificationManager()->SendNotification(ConsoleNotificationType::PpuFrameDone);
 
 	RenderedFrame frame(_currentBuffer, GbaConstants::ScreenWidth, GbaConstants::ScreenHeight, 1.0, _state.FrameCount, _console->GetControlManager()->GetPortStates());
-	bool rewinding = _emu->GetRewindManager()->IsRewinding();
-	_emu->GetVideoDecoder()->UpdateFrame(frame, rewinding, rewinding);
+	_emu->GetVideoDecoder()->UpdateFrame(frame, true, false);
 
 	_emu->ProcessEndOfFrame();
 	_console->ProcessEndOfFrame();

@@ -23,20 +23,12 @@
 #include "Shared/SystemActionManager.h"
 #include "Shared/TimingInfo.h"
 #include "Shared/HistoryViewer.h"
-#include "Netplay/GameServer.h"
-#include "Netplay/GameClient.h"
 #include "Shared/Interfaces/IConsole.h"
 #include "Shared/Interfaces/IBarcodeReader.h"
 #include "Shared/Interfaces/ITapeRecorder.h"
 #include "Shared/BaseControlManager.h"
-#include "SNES/SnesConsole.h"
-#include "SNES/SnesDefaultVideoFilter.h"
-#include "NES/NesConsole.h"
-#include "Gameboy/Gameboy.h"
-#include "PCE/PceConsole.h"
-#include "SMS/SmsConsole.h"
 #include "GBA/GbaConsole.h"
-#include "WS/WsConsole.h"
+#include "GBA/GbaDefaultVideoFilter.h"
 #include "Debugger/Debugger.h"
 #include "Debugger/BaseEventManager.h"
 #include "Debugger/DebugTypes.h"
@@ -62,8 +54,6 @@ Emulator::Emulator() :
 	_cheatManager(new CheatManager(this)),
 	_movieManager(new MovieManager(this)),
 	_historyViewer(new HistoryViewer(this)),
-	_gameServer(new GameServer(this)),
-	_gameClient(new GameClient(this)),
 	_rewindManager(new RewindManager(this))
 {
 	_paused = false;
@@ -90,17 +80,11 @@ void Emulator::Initialize(bool enableShortcuts)
 		_shortcutKeyHandler.reset(new ShortcutKeyHandler(this));
 		_notificationManager->RegisterNotificationListener(_shortcutKeyHandler);
 	}
-
-	_videoDecoder->StartThread();
-	_videoRenderer->StartThread();
 }
 
 void Emulator::Release()
 {
 	Stop(true);
-
-	_gameClient->Disconnect();
-	_gameServer->StopServer();
 
 	_videoDecoder->StopThread();
 	_videoRenderer->StopThread();
@@ -249,23 +233,7 @@ void Emulator::OnBeforeSendFrame()
 
 void Emulator::ProcessEndOfFrame()
 {
-	if(!_isRunAheadFrame) {
-		_frameLimiter->ProcessFrame();
-		while(_frameLimiter->WaitForNextFrame()) {
-			if(_stopFlag || _frameDelay != GetFrameDelay() || _paused || _pauseOnNextFrame || _lockCounter > 0) {
-				//Need to process another event, stop sleeping
-				break;
-			}
-		}
-
-		double newFrameDelay = GetFrameDelay();
-		if(newFrameDelay != _frameDelay) {
-			_frameDelay = newFrameDelay;
-			_frameLimiter->SetDelay(_frameDelay);
-		}
-
-		_console->GetControlManager()->ProcessEndOfFrame();
-	}
+	_console->GetControlManager()->ProcessEndOfFrame();
 	_frameRunning = false;
 }
 
@@ -529,14 +497,6 @@ bool Emulator::InternalLoadRom(VirtualFile romFile, VirtualFile patchFile, bool 
 		MessageManager::DisplayMessage(modelName, FolderUtilities::GetFilename(GetRomInfo().RomFile.GetFileName(), false));
 	}
 
-	_videoDecoder->StartThread();
-	_videoRenderer->StartThread();
-
-	if(stopRom) {
-		_stopFlag = false;
-		_emuThread.reset(new thread(&Emulator::Run, this));
-	}
-
 	return true;
 }
 
@@ -561,13 +521,7 @@ void Emulator::InitConsole(unique_ptr<IConsole>& newConsole, ConsoleMemoryInfo o
 
 void Emulator::TryLoadRom(VirtualFile& romFile, LoadRomResult& result, unique_ptr<IConsole>& console, bool useFileSignature)
 {
-	TryLoadRom<NesConsole>(romFile, result, console, useFileSignature);
-	TryLoadRom<SnesConsole>(romFile, result, console, useFileSignature);
-	TryLoadRom<Gameboy>(romFile, result, console, useFileSignature);
-	TryLoadRom<PceConsole>(romFile, result, console, useFileSignature);
-	TryLoadRom<SmsConsole>(romFile, result, console, useFileSignature);
 	TryLoadRom<GbaConsole>(romFile, result, console, useFileSignature);
-	TryLoadRom<WsConsole>(romFile, result, console, useFileSignature);
 }
 
 template<typename T>
@@ -967,7 +921,7 @@ DeserializeResult Emulator::Deserialize(istream& in, uint32_t fileFormatVersion,
 BaseVideoFilter* Emulator::GetVideoFilter(bool getDefaultFilter)
 {
 	shared_ptr<IConsole> console = GetConsole();
-	return console ? console->GetVideoFilter(getDefaultFilter) : new SnesDefaultVideoFilter(this);
+	return console ? console->GetVideoFilter(getDefaultFilter) : new GbaDefaultVideoFilter(this);
 }
 
 void Emulator::GetScreenRotationOverride(uint32_t& rotation)

@@ -11,7 +11,6 @@
 #include "Shared/RenderedFrame.h"
 #include "Shared/EventType.h"
 #include "Debugger/Debugger.h"
-#include "Netplay/GameClient.h"
 #include "Shared/Video/VideoDecoder.h"
 #include "Shared/Video/VideoRenderer.h"
 #include "Shared/Video/BaseVideoFilter.h"
@@ -156,9 +155,6 @@ bool SaveStateManager::LoadState(istream &stream)
 {
 	if(!_emu->IsRunning()) {
 		//Can't load a state if no game is running
-		return false;
-	} else if(_emu->GetGameClient()->Connected()) {
-		MessageManager::DisplayMessage("Netplay", "NetplayNotAllowed");
 		return false;
 	}
 

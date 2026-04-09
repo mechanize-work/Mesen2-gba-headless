@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <assert.h>
 #include "SimpleLock.h"
-#include <Timer.h>
+#include "Timer.h"
 
 thread_local std::thread::id SimpleLock::_threadID = std::this_thread::get_id();
 
