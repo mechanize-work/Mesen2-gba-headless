@@ -28,7 +28,6 @@ class CodeDataLogger;
 class CallstackManager;
 class LabelManager;
 class CdlManager;
-class ScriptManager;
 class Breakpoint;
 class BaseEventManager;
 class IAssembler;
@@ -64,7 +63,6 @@ private:
 	unordered_set<CpuType> _cpuTypes;
 	ConsoleType _consoleType = ConsoleType::Snes;
 
-	unique_ptr<ScriptManager> _scriptManager;
 	unique_ptr<MemoryDumper> _memoryDumper;
 	unique_ptr<MemoryAccessCounter> _memoryAccessCounter;
 	unique_ptr<CodeDataLogger> _codeDataLogger;
@@ -191,7 +189,6 @@ public:
 	DisassemblySearch* GetDisassemblySearch() { return _disassemblySearch.get(); }
 	LabelManager* GetLabelManager() { return _labelManager.get(); }
 	CdlManager* GetCdlManager() { return _cdlManager.get(); }
-	ScriptManager* GetScriptManager() { return _scriptManager.get(); }
 	IConsole* GetConsole() { return _console; }
 	Emulator* GetEmulator() { return _emu; }
 

@@ -72,18 +72,4 @@ public:
 	void RefreshHubState();
 	vector<shared_ptr<BaseControlDevice>> GetControlDevices();
 	
-	template<typename T>
-	shared_ptr<T> GetControlDevice()
-	{
-		auto lock = _deviceLock.AcquireSafe();
-
-		for (shared_ptr<BaseControlDevice>& device : _controlDevices) {
-			shared_ptr<T> typedDevice = std::dynamic_pointer_cast<T>(device);
-			if (typedDevice) {
-				return typedDevice;
-			}
-		}
-		return nullptr;
-	}
-
 };

@@ -253,41 +253,8 @@ private:
 	unordered_map<string, int64_t>* GetAvailableTokens();
 	bool CheckSpecialTokens(string expression, size_t &pos, string &output, ExpressionData &data);
 
-	unordered_map<string, int64_t>& GetSnesTokens();
-	int64_t GetSnesTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetSpcTokens();
-	int64_t GetSpcTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetGsuTokens();
-	int64_t GetGsuTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetCx4Tokens();
-	int64_t GetCx4TokenValue(int64_t token, EvalResultType& resultType);
-	
-	unordered_map<string, int64_t>& GetNecDspTokens();
-	int64_t GetNecDspTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetSt018Tokens();
-	int64_t GetSt018TokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetGameboyTokens();
-	int64_t GetGameboyTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetNesTokens();
-	int64_t GetNesTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetPceTokens();
-	int64_t GetPceTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetSmsTokens();
-	int64_t GetSmsTokenValue(int64_t token, EvalResultType& resultType);
-
 	unordered_map<string, int64_t>& GetGbaTokens();
 	int64_t GetGbaTokenValue(int64_t token, EvalResultType& resultType);
-
-	unordered_map<string, int64_t>& GetWsTokens();
-	int64_t GetWsTokenValue(int64_t token, EvalResultType& resultType);
 
 	bool ReturnBool(int64_t value, EvalResultType& resultType);
 
@@ -312,7 +279,4 @@ public:
 
 	bool Validate(string expression);
 
-#if _DEBUG
-	void RunTests();
-#endif
 };

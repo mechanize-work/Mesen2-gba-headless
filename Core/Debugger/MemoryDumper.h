@@ -6,15 +6,7 @@
 #include "Shared/MemoryType.h"
 #include "Utilities/SimpleLock.h"
 
-class SnesMemoryManager;
-class NesConsole;
-class BaseCartridge;
-class Spc;
-class Gameboy;
-class PceConsole;
-class SmsConsole;
 class GbaConsole;
-class WsConsole;
 class Emulator;
 class Debugger;
 
@@ -34,15 +26,7 @@ class MemoryDumper
 {
 private:
 	Emulator* _emu = nullptr;
-	Spc* _spc = nullptr;
-	Gameboy* _gameboy = nullptr;
-	SnesMemoryManager* _memoryManager = nullptr;
-	NesConsole* _nesConsole = nullptr;
-	PceConsole* _pceConsole = nullptr;
-	SmsConsole* _smsConsole = nullptr;
 	GbaConsole* _gbaConsole = nullptr;
-	WsConsole* _wsConsole = nullptr;
-	BaseCartridge* _cartridge = nullptr;
 	Debugger* _debugger = nullptr;
 	bool _isMemorySupported[DebugUtilities::GetMemoryTypeCount()] = {};
 

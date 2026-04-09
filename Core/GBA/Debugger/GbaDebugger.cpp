@@ -463,7 +463,7 @@ void GbaDebugger::ProcessInputOverrides(DebugControllerState inputOverrides[8])
 {
 	BaseControlManager* controlManager = _console->GetControlManager();
 	for(int i = 0; i < 8; i++) {
-		shared_ptr<GbaController> controller = std::dynamic_pointer_cast<GbaController>(controlManager->GetControlDeviceByIndex(i));
+		shared_ptr<GbaController> controller = std::static_pointer_cast<GbaController>(controlManager->GetControlDeviceByIndex(i));
 		if(controller && inputOverrides[i].HasPressedButton()) {
 			controller->SetBitValue(GbaController::Buttons::A, inputOverrides[i].A);
 			controller->SetBitValue(GbaController::Buttons::B, inputOverrides[i].B);
