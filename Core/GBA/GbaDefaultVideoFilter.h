@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "Shared/Video/BaseVideoFilter.h"
-#include "Shared/Video/GenericNtscFilter.h"
 #include "Shared/SettingTypes.h"
 
 class Emulator;
@@ -16,9 +15,6 @@ private:
 	bool _blendFrames = false;
 	bool _gbaAdjustColors = false;
 
-	bool _applyNtscFilter = false;
-	GenericNtscFilter _ntscFilter;
-
 	void InitLookupTable();
 
 	__forceinline static uint32_t BlendPixels(uint32_t a, uint32_t b);
@@ -29,7 +25,7 @@ protected:
 	FrameInfo GetFrameInfo() override;
 
 public:
-	GbaDefaultVideoFilter(Emulator* emu, bool applyNtscFilter);
+	GbaDefaultVideoFilter(Emulator* emu);
 	~GbaDefaultVideoFilter();
 
 	void ApplyFilter(uint16_t* ppuOutputBuffer) override;

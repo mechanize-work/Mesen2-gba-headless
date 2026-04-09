@@ -417,20 +417,7 @@ uint32_t GbaConsole::GetMasterClockRate()
 
 BaseVideoFilter* GbaConsole::GetVideoFilter(bool getDefaultFilter)
 {
-	if(getDefaultFilter) {
-		return new GbaDefaultVideoFilter(_emu, false);
-	}
-
-	VideoFilterType filterType = _emu->GetSettings()->GetVideoConfig().VideoFilter;
-
-	switch(filterType) {
-		case VideoFilterType::NtscBlargg:
-		case VideoFilterType::NtscBisqwit:
-			return new GbaDefaultVideoFilter(_emu, true);
-
-		default:
-			return new GbaDefaultVideoFilter(_emu, false);
-	}
+	return new GbaDefaultVideoFilter(_emu);
 }
 
 RomFormat GbaConsole::GetRomFormat()
