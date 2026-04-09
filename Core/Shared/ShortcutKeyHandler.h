@@ -12,7 +12,6 @@ class ShortcutKeyHandler final : public INotificationListener, public std::enabl
 private:
 	Emulator* _emu = nullptr;
 
-	thread _thread;
 	atomic<bool> _stopThread;
 	SimpleLock _lock;
 	

@@ -24,18 +24,10 @@ ShortcutKeyHandler::ShortcutKeyHandler(Emulator* emu)
 	_needRepeat = false;
 
 	_stopThread = false;
-	_thread = std::thread([=]() {
-		while(!_stopThread) {
-			ProcessKeys();
-			std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(50));
-		}
-	});
 }
 
 ShortcutKeyHandler::~ShortcutKeyHandler()
 {
-	_stopThread = true;
-	_thread.join();
 }
 
 bool ShortcutKeyHandler::IsKeyPressed(EmulatorShortcut shortcut)

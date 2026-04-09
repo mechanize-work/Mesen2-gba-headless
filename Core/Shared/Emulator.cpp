@@ -247,11 +247,6 @@ void Emulator::Stop(bool sendNotification, bool preventRecentGameSave, bool save
 
 	ResetDebugger();
 
-	if(_emuThread) {
-		_emuThread->join();
-		_emuThread.release();
-	}
-
 	if(_console && saveBattery) {
 		//Only save battery on power off, otherwise SaveBattery() is called by LoadRom()
 		_console->SaveBattery();
@@ -829,7 +824,7 @@ void Emulator::Unlock()
 
 bool Emulator::IsThreadPaused()
 {
-	return !_emuThread || _threadPaused;
+	return true;
 }
 
 void Emulator::SuspendDebugger(bool release)
@@ -1042,13 +1037,7 @@ void Emulator::SetStopCode(int32_t stopCode)
 	}
 
 	_stopCode = stopCode;
-	if(!_stopFlag && !_stopRequested) {
-		_stopRequested = true;
-		thread stopEmuTask([this]() {
-			Stop(true);
-		});
-		stopEmuTask.detach();
-	}
+	_stopRequested = true;
 }
 
 void Emulator::RegisterMemory(MemoryType type, void* memory, uint32_t size)

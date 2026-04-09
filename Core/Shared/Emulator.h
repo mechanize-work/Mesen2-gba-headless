@@ -58,7 +58,6 @@ private:
 	friend class DebuggerRequest;
 	friend class EmulatorLock;
 
-	unique_ptr<thread> _emuThread;
 	unique_ptr<AudioPlayerHud> _audioPlayerHud;
 	safe_ptr<IConsole> _console;
 
