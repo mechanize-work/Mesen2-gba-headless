@@ -53,6 +53,11 @@ public:
 	
 	void ForceFilterUpdate() { _forceFilterUpdate = true; }
 
+	// gba-headless: the filter that actually decoded the last frame.
+	// Emulator::GetVideoFilter() allocates a NEW filter every call —
+	// useless for reading the framebuffer.
+	BaseVideoFilter* GetFilter() { return _videoFilter.get(); }
+
 	uint32_t GetFrameCount();
 	FrameInfo GetBaseFrameInfo(bool removeOverscan);
 	FrameInfo GetFrameInfo();

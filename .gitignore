@@ -192,3 +192,4 @@ TestHelper/*
 UI/Dependencies.ziplibmesen.a
 test_main.cpp
 *.o
+libmesen.a
