@@ -66,20 +66,27 @@ void SoundMixer::StopAudio(bool clearBuffer)
 }
 
 #ifdef MESEN_HEADLESS
-// GbaApu pushes i16 stereo at sourceRate (32768 Hz at default SOUNDBIAS)
-// straight into here. The normal path runs it through the resampler,
-// EQ, reverb, then IAudioDevice::PlayBuffer -- none of which exist in
-// the headless build. We just stash the raw input for the shim to read
-// after RunFrame() returns.
+// GbaApu pushes i16 stereo at sourceRate straight into here. The normal
+// path runs it through the resampler, EQ, reverb, then IAudioDevice --
+// none of which exist headless. We stash the raw input for the shim.
 //
-// Single producer, single consumer, both on the same thread (GbaApu calls
-// this from inside RunFrame, shim reads after). No locking. 4x a frame's
-// worth (~548 pairs) so a missed drain doesn't clip.
+// sourceRate is NOT fixed: GbaApu sets _sampleRate = 32768 << SOUNDBIAS
+// resolution bits. Pokemon writes resolution=1 -> 65536 Hz. The shim
+// needs the rate or any WAV header it writes is a lie (and downstream
+// comparison aligns 65kHz data against 32kHz windows -- everything looks
+// 2x slow). It can also change mid-game when SOUNDBIAS is rewritten,
+// which is why we expose it per-drain rather than once at load.
+//
+// Single producer/consumer on one thread (GbaApu calls from inside
+// RunFrame, shim reads after). No locking. Capacity is sized for 4x a
+// frame at 32kHz; at 65kHz a frame is ~1096 pairs so still under.
 static constexpr uint32_t kHeadlessAudioCapacity = 2048;
 static int16_t  g_headlessAudio[kHeadlessAudioCapacity * 2];
 static uint32_t g_headlessAudioCount = 0;
+static uint32_t g_headlessAudioRate  = 32768;
 
 extern "C" int16_t* MesenHeadlessAudioBuffer() { return g_headlessAudio; }
+extern "C" uint32_t MesenHeadlessAudioRate()   { return g_headlessAudioRate; }
 extern "C" uint32_t MesenHeadlessAudioDrain() {
 	uint32_t n = g_headlessAudioCount;
 	g_headlessAudioCount = 0;
@@ -94,6 +101,7 @@ void SoundMixer::PlayAudioBuffer(int16_t* samples, uint32_t sampleCount, uint32_
 	}
 
 #ifdef MESEN_HEADLESS
+	g_headlessAudioRate = sourceRate;
 	uint32_t room = kHeadlessAudioCapacity - g_headlessAudioCount;
 	uint32_t take = sampleCount < room ? sampleCount : room;
 	memcpy(g_headlessAudio + g_headlessAudioCount * 2, samples, take * 2 * sizeof(int16_t));
